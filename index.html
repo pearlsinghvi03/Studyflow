@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>StudyFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            background: #FAF7F0;
+            font-family: Inter, sans-serif;
+            color: #0C1B33;
+        }
+
+        header {
+            text-align: center;
+            padding: 60px 20px 40px 20px;
+        }
+
+        .title {
+            font-family: "Playfair Display", serif;
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: #0C1B33;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #5A6375;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            animation: fadeIn 1.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(10px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        h2 {
+            font-family: "Playfair Display", serif;
+            color: #0C1B33;
+            margin-top: 0;
+            font-size: 30px;
+        }
+
+        label {
+            font-weight: 500;
+            margin-top: 20px;
+            display: block;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            border: 1px solid #D8D2C4;
+            border-radius: 8px;
+            background: #FAF7F0;
+            font-size: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            margin-top: 25px;
+            padding: 15px;
+            background: #0C1B33;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background: #102347;
+        }
+
+        .section-title {
+            margin-top: 35px;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .fixed-box, .subject-box {
+            background: #F3EEE5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .small-btn {
+            background: #0C1B33;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        #output {
+            margin-top: 40px;
+            background: #F3EEE5;
+            padding: 20px;
+            border-radius: 14px;
+            display: none;
+            white-space: pre-wrap;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            margin: 60px 0 20px 0;
+            color: #5A6375;
+            font-size: 15px;
+        }
+    </style>
+
+</head>
+<body>
+
+<header>
+    <div class="title">StudyFlow</div>
+    <div class="tagline">A smarter way to study, built around you.</div>
+</header>
+
+
+<div class="container">
+
+    <h2>Your Daily Routine</h2>
+
+    <label>Wake up time</label>
+    <input type="time" id="wake">
+
+    <label>Sleep time</label>
+    <input type="time" id="sleep">
+
+    <div class="section-title">Fixed activities</div>
+
+    <div id="fixedList"></div>
+    <button class="small-btn" onclick="addFixed()">Add activity</button>
+
+
+
+    <div class="section-title">Subjects</div>
+    <div id="subjectList"></div>
+    <button class="small-btn" onclick="addSubject()">Add subject</button>
+
+
+
+    <h2>Preferences</h2>
+
+    <label>Break duration (minutes)</label>
+    <input type="number" id="breaks" value="15">
+
+    <button class="btn" onclick="generatePlan()">Generate my schedule</button>
+
+</div>
+
+
+
+<div id="output"></div>
+
+
+
+<footer>
+    StudyFlow © 2025  
+    Built to make planning feel calm and personal.
+</footer>
+
+
+
+
+<script>
+
+let fixedCount = 0;
+let subjectCount = 0;
+
+function addFixed() {
+    fixedCount++;
+
+    const box = document.createElement("div");
+    box.className = "fixed-box";
+    box.innerHTML = `
+        <label>Activity name</label>
+        <input type="text" id="fixedName${fixedCount}" placeholder="School, sports, tuition">
+
+        <label>Start time</label>
+        <input type="time" id="fixedStart${fixedCount}">
+
+        <label>End time</label>
+        <input type="time" id="fixedEnd${fixedCount}">
+    `;
+
+    document.getElementById("fixedList").appendChild(box);
+}
+
+function addSubject() {
+    subjectCount++;
+
+    const box = document.createElement("div");
+    box.className = "subject-box";
+
+    box.innerHTML = `
+        <label>Subject name</label>
+        <input type="text" id="subName${subjectCount}" placeholder="Maths, science">
+
+        <label>Difficulty</label>
+        <select id="subDiff${subjectCount}">
+            <option value="1">Easy</option>
+            <option value="1.4">Medium</option>
+            <option value="1.8">Hard</option>
+        </select>
+    `;
+
+    document.getElementById("subjectList").appendChild(box);
+}
+
+
+
+
+function generatePlan() {
+
+    let wake = document.getElementById("wake").value;
+    let sleep = document.getElementById("sleep").value;
+
+    if (!wake || !sleep) {
+        alert("Please enter wake and sleep time.");
+        return;
+    }
+
+    let wakeMin = toMin(wake);
+    let sleepMin = toMin(sleep);
+
+    if (sleepMin < wakeMin) sleepMin += 24 * 60;
+
+    let timeline = [];
+
+    for (let i = wakeMin; i < sleepMin; i += 15) {
+        timeline.push({ time: i, free: true, task: "" });
+    }
+
+    for (let i = 1; i <= fixedCount; i++) {
+        let s = document.getElementById("fixedStart" + i).value;
+        let e = document.getElementById("fixedEnd" + i).value;
+
+        if (s && e) {
+            let sM = toMin(s);
+            let eM = toMin(e);
+            if (eM < sM) eM += 24 * 60;
+
+            timeline.forEach(slot => {
+                if (slot.time >= sM && slot.time < eM) {
+                    slot.free = false;
+                    slot.task = "Fixed activity";
+                }
+            });
+        }
+    }
+
+    let subjects = [];
+
+    for (let i = 1; i <= subjectCount; i++) {
+        let name = document.getElementById("subName" + i).value;
+        let diff = parseFloat(document.getElementById("subDiff" + i).value);
+
+        if (name) subjects.push({ name, diff });
+    }
+
+    if (subjects.length === 0) {
+        alert("Please add at least one subject.");
+        return;
+    }
+
+    let weightSum = subjects.reduce((a, b) => a + b.diff, 0);
+    let breaks = parseInt(document.getElementById("breaks").value);
+
+    let plan = "";
+    let day = 1;
+    let minuteCounter = 0;
+
+    subjects.forEach(s => s.remaining = s.diff);
+
+    for (let i = 0; i < timeline.length; i++) {
+        if (!timeline[i].free) continue;
+
+        if (minuteCounter === 0) {
+            plan += "Day " + day + "\n";
+        }
+
+        let pick = pickSubject(subjects);
+
+        let start = timeline[i].time;
+        let end = start + 60;
+
+        let startText = toText(start);
+        let endText = toText(end);
+
+        plan += startText + " to " + endText + "  " + pick.name + "\n";
+
+        pick.remaining -= 1;
+
+        minuteCounter++;
+
+        if (minuteCounter % 3 === 0) {
+            let bStart = end;
+            let bEnd = bStart + breaks;
+            plan += toText(bStart) + " to " + toText(bEnd) + "  Break\n";
+        }
+
+        if (minuteCounter === 6) {
+            day++;
+            plan += "\n";
+            minuteCounter = 0;
+        }
+    }
+
+    document.getElementById("output").style.display = "block";
+    document.getElementById("output").textContent = plan;
+}
+
+
+
+function pickSubject(arr) {
+    arr.sort((a, b) => b.remaining - a.remaining);
+    return arr[0];
+}
+
+function toMin(t) {
+    const [h, m] = t.split(":").map(Number);
+    return h * 60 + m;
+}
+
+function toText(min) {
+    min = min % (24 * 60);
+    let h = Math.floor(min / 60);
+    let m = min % 60;
+    let ampm = h >= 12 ? "pm" : "am";
+    if (h === 0) h = 12;
+    if (h > 12) h -= 12;
+    if (m < 10) m = "0" + m;
+    return h + ":" + m + " " + ampm;
+}
+
+</script>
+
+</body>
+</html>
